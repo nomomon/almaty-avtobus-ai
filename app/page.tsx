@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
 import { Loader2, PencilRuler, Send } from "lucide-react";
+import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { handleKeyDown } = useEnterSubmit();
 
   return (
     <div>
@@ -16,7 +18,7 @@ export default function Home() {
             <div className="font-bold">{message.role}</div>
             <div>
               {message.parts.map((part, i) => (
-                <p key={i} className="text-gray-800">
+                <p key={`${message.id}-${i}`} className="text-gray-800">
                   {part.type === "text" && part.text}
                   {part.type === "tool-invocation" && (
                     <div className="text-blue-600">
@@ -35,7 +37,12 @@ export default function Home() {
         ))}
       </div>
       <div className="flex flex-row gap-4">
-        <Textarea value={input} onChange={handleInputChange} />
+        <Textarea
+          value={input}
+          onChange={handleInputChange}
+          onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
+          placeholder="Type your message here..."
+        />
         <Button className="h-8 w-8" onClick={handleSubmit}>
           <Send className="h-4 w-4" />
         </Button>
