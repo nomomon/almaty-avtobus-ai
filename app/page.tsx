@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
 import { Loader2, PencilRuler, Send } from "lucide-react";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
+import { ToolCall } from "@/components/tools";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
@@ -21,14 +22,7 @@ export default function Home() {
                 <p key={`${message.id}-${i}`} className="text-gray-800">
                   {part.type === "text" && part.text}
                   {part.type === "tool-invocation" && (
-                    <div className="text-blue-600">
-                      {part.toolInvocation.state == "result" ? (
-                        <PencilRuler className="inline h-4 w-4 mr-1" />
-                      ) : (
-                        <Loader2 className="inline h-4 w-4 mr-1 animate-spin" />
-                      )}
-                      <span>{part.toolInvocation.toolName}</span>
-                    </div>
+                    <ToolCall {...part.toolInvocation} />
                   )}
                 </p>
               ))}
