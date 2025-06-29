@@ -3,12 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
-import { Loader2, PencilRuler, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import { ToolCall } from "@/components/tools";
 
 export default function Home() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, addToolResult } =
+    useChat();
   const { handleKeyDown } = useEnterSubmit();
 
   return (
@@ -19,12 +20,15 @@ export default function Home() {
             <div className="font-bold">{message.role}</div>
             <div>
               {message.parts.map((part, i) => (
-                <p key={`${message.id}-${i}`} className="text-gray-800">
-                  {part.type === "text" && part.text}
+                <div key={`${message.id}-${i}`} className="text-gray-800">
+                  {part.type === "text" && <p>{part.text}</p>}
                   {part.type === "tool-invocation" && (
-                    <ToolCall {...part.toolInvocation} />
+                    <ToolCall
+                      toolInvocation={part.toolInvocation}
+                      addToolResult={addToolResult}
+                    />
                   )}
-                </p>
+                </div>
               ))}
             </div>
           </div>

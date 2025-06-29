@@ -1,8 +1,8 @@
-import { ToolInvocation } from "ai";
 import { Loader2, PencilRuler } from "lucide-react";
 import { FC } from "react";
+import { ToolCallProps } from ".";
 
-const DefaultTool: FC<ToolInvocation> = (toolInvocation) => (
+const DefaultTool: FC<ToolCallProps> = ({ toolInvocation }) => (
   <div className="text-blue-600">
     {toolInvocation.state == "result" ? (
       <PencilRuler className="inline h-4 w-4 mr-1" />
