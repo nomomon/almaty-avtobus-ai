@@ -28,7 +28,7 @@ const UserLocationTool: FC<ToolCallProps> = ({
     } else {
       setError("Geolocation is not supported by your browser.");
     }
-  }, []);
+  }, [toolInvocation, addToolResult]);
 
   return (
     <>
