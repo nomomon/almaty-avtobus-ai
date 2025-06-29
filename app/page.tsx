@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
-import { Send } from "lucide-react";
+import { Loader2, PencilRuler, Send } from "lucide-react";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
@@ -18,6 +18,16 @@ export default function Home() {
               {message.parts.map((part, i) => (
                 <p key={i} className="text-gray-800">
                   {part.type === "text" && part.text}
+                  {part.type === "tool-invocation" && (
+                    <div className="text-blue-600">
+                      {part.toolInvocation.state == "result" ? (
+                        <PencilRuler className="inline h-4 w-4 mr-1" />
+                      ) : (
+                        <Loader2 className="inline h-4 w-4 mr-1 animate-spin" />
+                      )}
+                      <span>{part.toolInvocation.toolName}</span>
+                    </div>
+                  )}
                 </p>
               ))}
             </div>
