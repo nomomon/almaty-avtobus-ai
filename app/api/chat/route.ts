@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       "You are a helpful assistant that can answer questions and provide information.",
     messages,
     tools,
-    maxSteps: 2,
+    maxSteps: 10,
     experimental_transform: smoothStream({ chunking: "word" }),
   });
 
