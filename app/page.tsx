@@ -6,6 +6,7 @@ import { useChat } from "@ai-sdk/react";
 import { Send } from "lucide-react";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import { ToolCall } from "@/components/tools";
+import ReactMarkdown from "react-markdown";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit, addToolResult } =
@@ -21,7 +22,11 @@ export default function Home() {
             <div>
               {message.parts.map((part, i) => (
                 <div key={`${message.id}-${i}`} className="text-gray-800">
-                  {part.type === "text" && <p>{part.text}</p>}
+                  {part.type === "text" && (
+                    <div className="markdown-body">
+                      <ReactMarkdown>{part.text}</ReactMarkdown>
+                    </div>
+                  )}
                   {part.type === "tool-invocation" && (
                     <ToolCall
                       toolInvocation={part.toolInvocation}

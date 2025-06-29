@@ -1,3 +1,4 @@
+import { listBusRoutes } from "@/lib/transport-api/list-bus-routes";
 import {
   computeDistance,
   getClosestBusStops,
@@ -28,6 +29,7 @@ export const getTransitData = tool({
       "meters from location:",
       location,
     );
+    const routes = await listBusRoutes();
 
     const busStops = (
       await getClosestBusStops(location.latitude, location.longitude, radius)
@@ -53,7 +55,10 @@ export const getTransitData = tool({
         name: stop.name.en,
         distance: Math.round(distance),
         walkingTime,
-        departures: comingBuses,
+        departures: comingBuses.map((bus) => ({
+          ...bus,
+          routeName: routes.find((route) => route.id === bus.routeId)?.name.en,
+        })),
       });
     }
 
