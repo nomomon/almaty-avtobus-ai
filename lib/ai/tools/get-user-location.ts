@@ -7,6 +7,6 @@ export const getUserLocation = tool({
   parameters: z.object({
     description: z
       .string()
-      .describe("Description to show to the user when calling the tool."),
+      .describe("Short description to show to the user when calling the tool."),
   }),
 });

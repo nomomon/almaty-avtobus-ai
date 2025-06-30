@@ -10,7 +10,9 @@ export const getPointDescription = tool({
     .object({
       description: z
         .string()
-        .describe("Description to show to the user when calling the tool."),
+        .describe(
+          "Short description to show to the user when calling the tool.",
+        ),
       longitude: z.number().describe("The longitude of the point."),
       latitude: z.number().describe("The latitude of the point."),
     })
