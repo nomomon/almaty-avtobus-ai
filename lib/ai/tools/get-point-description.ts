@@ -1,5 +1,4 @@
 import { tool } from "ai";
-import { describe } from "node:test";
 import { z } from "zod";
 
 const api_key = process.env["2GIS_API_KEY"];

@@ -44,7 +44,7 @@ export default function Home() {
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
-          placeholder="Type your message here..."
+          placeholder="Введите сообщение..."
         />
         <Button className="h-8 w-8" onClick={handleSubmit}>
           <Send className="h-4 w-4" />
