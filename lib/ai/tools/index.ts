@@ -6,7 +6,7 @@ import { getUserLocation } from "./get-user-location";
 
 const tools = {
   getUserLocation,
-  // getTransitData,
+  getTransitData,
   getPointDescription,
   getLocationsAround,
   getRoute,

@@ -63,8 +63,10 @@ export const getRoute = tool({
     const data = await response.json();
 
     return data.map((route: Record<string, unknown>) => {
-      const { movements, ...rest } = route;
-      return rest;
+      if ("movements" in route) {
+        delete route.movements;
+      }
+      return route;
     });
   },
 });

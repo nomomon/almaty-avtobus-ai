@@ -3,6 +3,18 @@ import { z } from "zod";
 
 const api_key = process.env["2GIS_API_KEY"];
 
+interface LocationItem {
+  name: string | null;
+  type: string | null;
+  address_name: string | null;
+  full_name: string | null;
+  purpose_name: string | null;
+  point: {
+    lat: number;
+    lon: number;
+  } | null;
+}
+
 export const getLocationsAround = tool({
   description:
     "Get a list of locations around the given coordinates, optionally filtered by a search query (e.g., 'кафе'). Supports radius, page size, and sorting by distance. Returns name, type, and address for each location.",
@@ -82,7 +94,8 @@ export const getLocationsAround = tool({
       }
       const data = await response.json();
       const items = data?.result?.items ?? [];
-      return items.map((item: any) => ({
+
+      return items.map((item: LocationItem) => ({
         name: item.name ?? null,
         type: item.type ?? null,
         address_name: item.address_name ?? null,
