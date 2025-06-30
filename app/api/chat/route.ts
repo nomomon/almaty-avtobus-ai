@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     messages,
     tools,
     maxSteps: 10,
+    toolCallStreaming: true,
     experimental_transform: smoothStream({ chunking: "word" }),
   });
 
