@@ -36,7 +36,10 @@ const DefaultTool: FC<ToolCallProps> = ({ toolInvocation }) => {
 
   return (
     <div className="my-2 border rounded-sm bg-muted flex flex-col">
-      <div className="py-2 px-3 flex flex-row items-center justify-between">
+      <button
+        onClick={handleClick}
+        className="py-2 px-3 flex flex-row items-center justify-between cursor-pointer w-full text-left"
+      >
         <div className="flex flex-row items-center gap-2">
           <div className="flex items-center justify-center w-5 h-5 text-muted-foreground/80">
             {renderIcon(toolInvocation)}
@@ -49,13 +52,12 @@ const DefaultTool: FC<ToolCallProps> = ({ toolInvocation }) => {
           <ChevronDown
             size={16}
             className={cn(
-              "cursor-pointer transition-transform",
+              "transition-transform",
               open ? "rotate-180" : "rotate-360",
             )}
-            onClick={handleClick}
           />
         </div>
-      </div>
+      </button>
       <div
         className={cn(
           "overflow-hidden transition-all duration-300",
