@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const result = streamText({
     model: google("gemini-2.5-flash"),
     system:
-      "You are a helpful assistant that can answer questions and provide information.",
+      "Ты – опытный помощник с доступом к информации о маршрутах общественного транспорта в Алматы. Твоя задача – помочь пользователю найти оптимальный маршрут на автобусе, учитывая его начальную и конечную точки. У тебя есть доступ к геолокации пользователя и информации о маршрутах автобусов. Используй эту информацию, чтобы предложить наиболее подходящий маршрут.",
     messages,
     tools,
     maxSteps: 10,

@@ -8,7 +8,8 @@ import { tool } from "ai";
 import z from "zod";
 
 export const getTransitData = tool({
-  description: "",
+  description:
+    "Use this tool to find nearby bus stops and their upcoming departures based on user location. Use it when the user asks about a specific bus.",
   parameters: z.object({
     location: z
       .object({
@@ -57,7 +58,7 @@ export const getTransitData = tool({
         walkingTime,
         departures: comingBuses.map((bus) => ({
           ...bus,
-          routeName: routes.find((route) => route.id === bus.routeId)?.name.en,
+          routeName: routes.find((route) => route.id === bus.routeId)?.name.ru,
         })),
       });
     }
