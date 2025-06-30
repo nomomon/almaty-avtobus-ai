@@ -10,6 +10,9 @@ const UserLocationTool: FC<ToolCallProps> = ({
   const [error, setError] = useState<string>();
 
   useEffect(() => {
+    if (toolInvocation.state === "result") {
+      return;
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -23,6 +26,12 @@ const UserLocationTool: FC<ToolCallProps> = ({
         },
         (err) => {
           setError(err.message);
+          addToolResult({
+            toolCallId: toolInvocation.toolCallId,
+            result: {
+              error: err.message,
+            },
+          });
         },
       );
     } else {
