@@ -11,6 +11,9 @@ export const getTransitData = tool({
   description:
     "Use this tool to find nearby bus stops and their upcoming departures based on user location. Use it when the user asks about a specific bus.",
   parameters: z.object({
+    description: z
+      .string()
+      .describe("Description to show to the user when calling the tool."),
     location: z
       .object({
         latitude: z.number(),
@@ -36,8 +39,6 @@ export const getTransitData = tool({
       const busStops = (
         await getClosestBusStops(location.latitude, location.longitude, radius)
       ).slice(0, 2);
-
-      console.log(JSON.stringify(busStops, null, 2));
 
       const nearbyStops = [];
 

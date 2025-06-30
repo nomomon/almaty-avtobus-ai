@@ -1,4 +1,5 @@
 import { tool } from "ai";
+import { describe } from "node:test";
 import { z } from "zod";
 
 const api_key = process.env["2GIS_API_KEY"];
@@ -8,6 +9,9 @@ export const getPointDescription = tool({
     "Get a description of a point in the city, including its name, type, and any relevant details.",
   parameters: z
     .object({
+      description: z
+        .string()
+        .describe("Description to show to the user when calling the tool."),
       longitude: z.number().describe("The longitude of the point."),
       latitude: z.number().describe("The latitude of the point."),
     })

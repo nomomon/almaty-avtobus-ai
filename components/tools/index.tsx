@@ -5,7 +5,7 @@ import UserLocationTool from "./user-location";
 
 export interface ToolCallProps {
   toolInvocation: ToolInvocation;
-  addToolResult: (result: { toolCallId: string; result: string }) => void;
+  addToolResult: (result: { toolCallId: string; result: unknown }) => void;
 }
 
 export const ToolCall: FC<ToolCallProps> = (props) => {

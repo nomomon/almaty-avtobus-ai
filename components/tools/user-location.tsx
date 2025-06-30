@@ -1,7 +1,7 @@
 "use client";
-import { Loader2, PencilRuler } from "lucide-react";
 import { FC, useState, useEffect } from "react";
 import { ToolCallProps } from ".";
+import DefaultTool from "./default-tool";
 
 const UserLocationTool: FC<ToolCallProps> = ({
   toolInvocation,
@@ -15,10 +15,10 @@ const UserLocationTool: FC<ToolCallProps> = ({
         (position) => {
           addToolResult({
             toolCallId: toolInvocation.toolCallId,
-            result: JSON.stringify({
+            result: {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
-            }),
+            },
           });
         },
         (err) => {
@@ -32,14 +32,10 @@ const UserLocationTool: FC<ToolCallProps> = ({
 
   return (
     <>
-      <div className="text-blue-600">
-        {toolInvocation.state == "result" ? (
-          <PencilRuler className="inline h-4 w-4 mr-1" />
-        ) : (
-          <Loader2 className="inline h-4 w-4 mr-1 animate-spin" />
-        )}
-        <span>{toolInvocation.toolName}</span>
-      </div>
+      <DefaultTool
+        toolInvocation={toolInvocation}
+        addToolResult={addToolResult}
+      />
       {error && (
         <div className="text-red-600 mt-2">
           <p>Error: {error}</p>
