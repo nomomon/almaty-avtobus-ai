@@ -5,8 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "@ai-sdk/react";
 import { Send } from "lucide-react";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
-import { ToolCall } from "@/components/tools";
-import ReactMarkdown from "react-markdown";
+import Chat from "@/components/templates/chat";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit, addToolResult } =
@@ -14,31 +13,8 @@ export default function Home() {
   const { handleKeyDown } = useEnterSubmit();
 
   return (
-    <div>
-      <div>
-        {messages.map((message) => (
-          <div key={message.id} className="mb-4">
-            <div className="font-bold">{message.role}</div>
-            <div>
-              {message.parts.map((part, i) => (
-                <div key={`${message.id}-${i}`} className="text-gray-800">
-                  {part.type === "text" && (
-                    <div className="markdown-body">
-                      <ReactMarkdown>{part.text}</ReactMarkdown>
-                    </div>
-                  )}
-                  {part.type === "tool-invocation" && (
-                    <ToolCall
-                      toolInvocation={part.toolInvocation}
-                      addToolResult={addToolResult}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="flex flex-col h-screen p-4 gap-4">
+      <Chat messages={messages} addToolResult={addToolResult} />
       <div className="flex flex-row gap-4">
         <Textarea
           value={input}
