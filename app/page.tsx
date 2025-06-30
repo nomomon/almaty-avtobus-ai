@@ -6,6 +6,7 @@ import { useChat } from "@ai-sdk/react";
 import { Send } from "lucide-react";
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit";
 import Chat from "@/components/templates/chat";
+import Logo from "@/components/atoms/logo";
 
 export default function Home() {
   const { messages, input, handleInputChange, handleSubmit, addToolResult } =
@@ -13,7 +14,8 @@ export default function Home() {
   const { handleKeyDown } = useEnterSubmit();
 
   return (
-    <div className="flex flex-col h-screen p-4 gap-4">
+    <div className="flex flex-col min-h-screen p-4 gap-4 pb-80">
+      <Logo />
       <Chat messages={messages} addToolResult={addToolResult} />
       <div className="flex flex-row gap-4">
         <Textarea
