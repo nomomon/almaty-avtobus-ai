@@ -17,6 +17,7 @@ export default function Home() {
       <Chat messages={messages} addToolResult={addToolResult} />
       <div className="flex flex-row gap-4">
         <Textarea
+          autoFocus
           value={input}
           onChange={handleInputChange}
           onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
