@@ -5,6 +5,7 @@ import {
   Loader2,
   MapPinCheck,
   PencilRuler,
+  Store,
 } from "lucide-react";
 import React, { FC, useState } from "react";
 import { ToolCallProps } from ".";
@@ -15,6 +16,7 @@ const toolNameToIcon: Record<string, FC<{ size?: number }>> = {
   getPointDescription: LetterText,
   getTransitData: BusFront,
   getUserLocation: MapPinCheck,
+  getLocationsAround: Store,
 };
 
 const renderIcon = (toolInvocation: ToolInvocation) => {
@@ -35,10 +37,10 @@ const DefaultTool: FC<ToolCallProps> = ({ toolInvocation }) => {
   };
 
   return (
-    <div className="my-2 border rounded-sm bg-muted flex flex-col">
+    <div className="my-2 border rounded-sm bg-muted flex flex-col overflow-clip">
       <button
         onClick={handleClick}
-        className="py-2 px-3 flex flex-row items-center justify-between cursor-pointer w-full text-left"
+        className="py-2 px-3 flex flex-row items-center justify-between cursor-pointer w-full text-left shadow-sm"
       >
         <div className="flex flex-row items-center gap-2">
           <div className="flex items-center justify-center w-5 h-5 text-muted-foreground/80">
@@ -60,8 +62,8 @@ const DefaultTool: FC<ToolCallProps> = ({ toolInvocation }) => {
       </button>
       <div
         className={cn(
-          "overflow-hidden transition-all duration-300",
-          open ? "max-h-96" : "max-h-0",
+          "overflow-y-scroll transition-all duration-300",
+          open ? "max-h-60" : "max-h-0",
         )}
       >
         <div className="py-2 px-3 border-t">
