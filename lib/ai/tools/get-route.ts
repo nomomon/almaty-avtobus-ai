@@ -8,6 +8,11 @@ export const getRoute = tool({
     "Get a public transport route between two points using 2GIS. Returns route details including distance, duration, transfers, and transport types.",
   parameters: z
     .object({
+      description: z
+        .string()
+        .describe(
+          "Short description to show to the user when calling the tool.",
+        ),
       source: z.object({
         name: z.string().describe("Name of the starting point."),
         latitude: z.number().describe("Latitude of the starting point."),
@@ -56,7 +61,10 @@ export const getRoute = tool({
       );
     }
     const data = await response.json();
-    // Return the main route info, or the full response if needed
-    return data?.result?.routes ?? data;
+
+    return data.map((route: Record<string, unknown>) => {
+      const { movements, ...rest } = route;
+      return rest;
+    });
   },
 });

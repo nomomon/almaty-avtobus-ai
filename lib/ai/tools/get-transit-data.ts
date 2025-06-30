@@ -9,7 +9,7 @@ import z from "zod";
 
 export const getTransitData = tool({
   description:
-    "Use this tool to find nearby bus stops and their upcoming departures based on user location. Use it when the user asks about a specific bus.",
+    "Use this tool to find nearby bus stops and their upcoming departures based on the user's location. It returns a list of bus stops with their names, distances from the user, walking times, and upcoming bus departures.",
   parameters: z.object({
     description: z
       .string()
