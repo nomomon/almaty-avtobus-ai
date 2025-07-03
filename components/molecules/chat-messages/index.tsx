@@ -1,11 +1,11 @@
 import { UIMessage } from "ai";
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
-import { ToolCall } from "../tools";
+import { ToolCall } from "../../tools";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 
-interface ChatProps {
+interface ChatMessagesProps {
   messages: UIMessage[];
   addToolResult: ({
     toolCallId,
@@ -16,7 +16,7 @@ interface ChatProps {
   }) => void;
 }
 
-const Chat: FC<ChatProps> = ({ messages, addToolResult }) => {
+const ChatMessages: FC<ChatMessagesProps> = ({ messages, addToolResult }) => {
   return (
     <div className="flex flex-col gap-4">
       {messages.map((message) => (
@@ -66,4 +66,4 @@ const Chat: FC<ChatProps> = ({ messages, addToolResult }) => {
   );
 };
 
-export default Chat;
+export default ChatMessages;
