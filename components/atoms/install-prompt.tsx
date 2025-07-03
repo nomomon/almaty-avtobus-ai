@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Share, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import Image from "next/image";
 
 // App info from manifest
 const APP_NAME = "Almaty Bus AI";
@@ -21,7 +22,8 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     const iosCheck =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+      !(window as unknown as { MSStream?: unknown }).MSStream;
     const standaloneCheck = window.matchMedia(
       "(display-mode: standalone)",
     ).matches;
@@ -95,7 +97,9 @@ export default function InstallPrompt() {
                       className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
                       style={{ background: THEME_COLOR }}
                     >
-                      <img
+                      <Image
+                        width={40}
+                        height={40}
                         src={APP_ICON}
                         alt="App Icon"
                         className="w-10 h-10 rounded-lg"
@@ -130,7 +134,7 @@ export default function InstallPrompt() {
                       <Share className="w-4 h-4" />
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <span>2. Select "Add to Home Screen"</span>
+                      <span>2. Select &quot;Add to Home Screen&quot;</span>
                       <Plus className="w-4 h-4" />
                     </div>
                   </div>
