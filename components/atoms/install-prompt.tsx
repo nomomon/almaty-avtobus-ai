@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Download, Share, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 // App info from manifest
 const APP_NAME = "Almaty Bus AI";
@@ -76,7 +76,16 @@ export default function InstallPrompt() {
             }}
             className="fixed bottom-4 left-4 right-4 z-50 max-w-sm mx-auto"
           >
-            <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-md">
+            <Card className="relative border-0 shadow-2xl bg-white/95 backdrop-blur-md gap-2">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDismiss}
+                className="absolute top-4 right-4 h-8 w-8 p-0 text-gray-400 hover:text-gray-600. cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </Button>
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
                   {/* App Icon */}
@@ -100,61 +109,41 @@ export default function InstallPrompt() {
                         <h3 className="font-semibold text-gray-900 text-lg">
                           Install {APP_NAME}
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 mt-.25">
                           {APP_DESCRIPTION}
                         </p>
-                      </div>
-
-                      {/* Close Button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleDismiss}
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    {/* iOS Instructions */}
-                    {isIOS ? (
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm text-gray-700">
-                          To install this app on your device:
-                        </p>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span>1. Tap the share button</span>
-                          <Share className="w-4 h-4" />
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span>2. Select "Add to Home Screen"</span>
-                          <Plus className="w-4 h-4" />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-4">
-                        <Button
-                          onClick={handleInstall}
-                          className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium"
-                          style={{ background: THEME_COLOR }}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Add to Home Screen
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Benefits */}
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>• Faster loading</span>
-                        <span>• Offline access</span>
-                        <span>• Push notifications</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </CardContent>
+              <CardFooter>
+                {/* iOS Instructions */}
+                {isIOS ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-700">
+                      To install this app on your device:
+                    </p>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span>1. Tap the share button</span>
+                      <Share className="w-4 h-4" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <span>2. Select "Add to Home Screen"</span>
+                      <Plus className="w-4 h-4" />
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={handleInstall}
+                    className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium cursor-pointer"
+                    style={{ background: THEME_COLOR }}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Add to Home Screen
+                  </Button>
+                )}
+              </CardFooter>
             </Card>
           </motion.div>
         </>
