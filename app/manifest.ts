@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Almaty Bus AI",
+    name: "Almaty Avtobus AI",
     short_name: "Bus AI",
     description: "AI-ассистент для поиска автобусов и остановок в Алматы.",
     start_url: "/",

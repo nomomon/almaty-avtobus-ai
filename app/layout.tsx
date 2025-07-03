@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Almaty Bus AI",
+  title: "Almaty Avtobus AI",
   description:
     "Ассистент для поиска автобусных маршрутов, ближайших остановок и времени прибытия автобусов в Алматы. Интеграция с городским транспортным API.",
 };
