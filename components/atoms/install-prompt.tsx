@@ -8,7 +8,8 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 // App info from manifest
 const APP_NAME = "Almaty Bus AI";
-const APP_DESCRIPTION = "An AI-powered assistant for Almaty public transport";
+const APP_DESCRIPTION =
+  "AI-ассистент для поиска автобусов и остановок в Алматы.";
 const APP_ICON = "/web-app-manifest-192x192.png";
 const THEME_COLOR = "#d69300";
 

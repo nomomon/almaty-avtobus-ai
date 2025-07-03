@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Almaty Bus AI",
     short_name: "Bus AI",
-    description: "An AI-powered assistant for Almaty public transport",
+    description: "AI-ассистент для поиска автобусов и остановок в Алматы.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
