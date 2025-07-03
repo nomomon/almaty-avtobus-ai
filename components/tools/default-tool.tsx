@@ -5,6 +5,7 @@ import {
   Loader2,
   MapPinCheck,
   PencilRuler,
+  Route,
   Store,
 } from "lucide-react";
 import React, { FC, useState } from "react";
@@ -13,10 +14,11 @@ import { ToolInvocation } from "ai";
 import { cn } from "@/lib/utils";
 
 const toolNameToIcon: Record<string, FC<{ size?: number }>> = {
+  getLocationsAround: Store,
   getPointDescription: LetterText,
+  getRoute: Route,
   getTransitData: BusFront,
   getUserLocation: MapPinCheck,
-  getLocationsAround: Store,
 };
 
 const renderIcon = (toolInvocation: ToolInvocation) => {
