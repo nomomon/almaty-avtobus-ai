@@ -81,9 +81,18 @@ A key rejected by 2GIS raises `DeadKeyError`. Worth knowing: 2GIS answers HTTP
 calls worked yesterday and 403 today with nothing changed on your side, the key
 is gone — issue a new one.
 
-Don't run this on the public key embedded in 2gis.kz's own JS bundle. It works,
-but it can be rotated without notice, its quota is shared with all of 2gis.kz's
-traffic, and using it from your own product is outside 2GIS's terms.
+Don't run this on the public key that 2gis.kz ships with its own front end. It
+works, but it can be rotated without notice, its quota is shared with all of
+2gis.kz's traffic, and using it from your own product is outside 2GIS's terms.
+
+That key is app-level configuration, not a session credential: a captured
+browser session shows it reported to telemetry as `"apikey"` alongside
+`"appVersion"`, distinct from the per-user `user` and `sessionId` fields; shared
+across the routing, catalog and advisor APIs; accompanied by a second key used
+only for map tiles; and with no `Authorization` header or cookie anywhere in the
+session. So it has no expiry to plan around — it simply lives until 2GIS rotates
+it, with no notice. Hence `DeadKeyError` and env-supplied keys rather than
+anything baked in here.
 
 ## What it reads
 
