@@ -97,6 +97,41 @@ Endpoint: `POST https://routing.api.2gis.com/carrouting/6.0.0/global`, with
 app uses; the documented equivalent is `routing/7.0.0/global` with
 `traffic_mode: "jam"`. Field names differ, the numbers don't.
 
+## The official Distance Matrix API
+
+2GIS does sell a real matrix product — **Distance Matrix API**, at
+`POST https://routing.api.2gis.com/get_dist_matrix?key=...&version=2.0`. One
+request returns every source→target pair, which would replace this client's
+n×m fan-out entirely. There's also an async variant for large matrices, where
+you create a task and poll for the result.
+
+I have **not** confirmed its request or response shape against a live call, and
+a key provisioned for Directions is not automatically provisioned for Distance
+Matrix — it's a separate product line. So probe it rather than trusting me:
+
+```bash
+python scripts/sweep.py matrix        # tries several body shapes, prints statuses
+```
+
+A 403 there almost certainly means "key not enabled for this product", not
+"wrong body".
+
+### Finding it for real
+
+1. **Your dashboard** — dev.2gis.com → your project → the key's page lists
+   exactly which APIs it covers. This answers "does my key support it" in one
+   look, and is the fastest path.
+2. **The docs** — docs.2gis.com, under the navigation/routing APIs. The
+   Distance Matrix page carries the authoritative request schema, the
+   sources/targets semantics, and the per-request point limit (matrix products
+   normally cap total points hard).
+3. **Ask sales/support** — matrix APIs are usually quoted per-request rather
+   than bundled into a self-serve tier, so if the dashboard doesn't show it,
+   enabling it is a conversation, not a checkbox.
+
+If a variant in `scripts/sweep.py` comes back 200, paste the output and the
+client can grow a `matrix()` fast path that costs one request instead of n×m.
+
 ## Tests
 
 ```bash
