@@ -332,3 +332,50 @@ def test_openapi_documents_both_endpoints(env):
 
     assert "/v1/route" in paths
     assert "/v1/matrix" in paths
+
+
+# -- configuration errors ---------------------------------------------------
+
+
+def test_missing_key_is_a_503_about_configuration_not_a_502(env):
+    """A key-less deploy must not blame key rotation.
+
+    Regression: the app used to send a placeholder key upstream, get a 403,
+    and report "probably rotated" to someone who had simply not set one.
+    """
+    client, calls, _ = env
+    app.state.has_key = False
+    try:
+        response = client.post("/v1/route", json={"origin": A, "destination": B})
+
+        assert response.status_code == 503
+        detail = response.json()["detail"]
+        assert "TWOGIS_ROUTING_KEY" in detail
+        assert "rotated" not in detail
+        assert calls["n"] == 0, "must not reach upstream without a key"
+
+        assert client.post("/v1/matrix", json={"origins": [A, B]}).status_code == 503
+        assert (
+            client.get(
+                "/v1/route", params={"origin": "76.9,43.2", "destination": "76.95,43.24"}
+            ).status_code
+            == 503
+        )
+
+        # /health still answers, and says what is wrong.
+        assert client.get("/health").json()["upstream_key"] == "missing"
+    finally:
+        app.state.has_key = True
+
+
+def test_identical_points_cost_nothing(env):
+    """origin == destination is zero, without an upstream call."""
+    client, calls, _ = env
+    response = client.post("/v1/route", json={"origin": A, "destination": A})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["duration_s"] == 0
+    assert body["distance_m"] == 0
+    assert body["cached"] is False
+    assert calls["n"] == 0

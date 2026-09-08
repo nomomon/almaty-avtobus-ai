@@ -37,6 +37,11 @@ class RoutingService:
 
     async def route(self, origin: Point, destination: Point) -> tuple[Route, bool]:
         """Return the fastest route and whether it came from the cache."""
+        # Going nowhere takes no time. Answering this upstream wastes a call
+        # and, on a key-less deploy, turns a no-op into a confusing 502.
+        if _same_place(origin, destination):
+            return Route(distance_m=0, duration_s=0), False
+
         hit = await self.cache.get(origin, destination)
         if hit is not None:
             return hit, True

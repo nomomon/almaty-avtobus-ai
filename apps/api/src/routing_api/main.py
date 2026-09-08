@@ -30,6 +30,10 @@ logger = logging.getLogger(__name__)
 #: Starlette renamed its 422 constant; the number is the stable part.
 UNPROCESSABLE = 422
 
+#: Placeholder so the app can boot (and report the problem on /health) with no
+#: key configured. Requests are refused by require_key before it is ever sent.
+MISSING_KEY_SENTINEL = "unset"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -46,7 +50,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     backend = await make_backend(settings.redis_url)
     client = AsyncCarRoutingClient(
-        key=key or "unset",
+        key=key or MISSING_KEY_SENTINEL,
         timeout=settings.upstream_timeout_s,
         max_concurrency=settings.upstream_max_concurrency,
         max_retries=settings.upstream_max_retries,
@@ -94,7 +98,24 @@ def get_service(request: Request) -> RoutingService:
     return service
 
 
+def require_key(request: Request) -> None:
+    """Refuse routing when no upstream key is configured.
+
+    Without this the request goes out with a placeholder key and 2GIS answers
+    403, which surfaces as "the key was probably rotated" -- exactly the wrong
+    thing to tell someone who simply has not set one yet.
+    """
+    if not getattr(request.app.state, "has_key", False):
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "No 2GIS API key configured. Set TWOGIS_ROUTING_KEY (or "
+            "TWOGIS_API_KEY / 2GIS_API_KEY) in the service environment and "
+            "restart. /health reports this as upstream_key: missing.",
+        )
+
+
 ServiceDep = Annotated[RoutingService, Depends(get_service)]
+KeyRequired = Depends(require_key)
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
 
@@ -156,13 +177,23 @@ async def health(request: Request) -> HealthResponse:
     )
 
 
-@app.post("/v1/route", response_model=RouteResponse, tags=["routing"])
+@app.post(
+    "/v1/route",
+    response_model=RouteResponse,
+    tags=["routing"],
+    dependencies=[KeyRequired],
+)
 async def post_route(body: RouteRequest, service: ServiceDep) -> RouteResponse:
     """Travel time and distance between two points, by car, with traffic."""
     return await _route(service, _to_point(body.origin), _to_point(body.destination))
 
 
-@app.get("/v1/route", response_model=RouteResponse, tags=["routing"])
+@app.get(
+    "/v1/route",
+    response_model=RouteResponse,
+    tags=["routing"],
+    dependencies=[KeyRequired],
+)
 async def get_route(
     service: ServiceDep,
     origin: Annotated[
@@ -195,7 +226,12 @@ async def _route(service: RoutingService, a: Point, b: Point) -> RouteResponse:
     )
 
 
-@app.post("/v1/matrix", response_model=MatrixResponse, tags=["routing"])
+@app.post(
+    "/v1/matrix",
+    response_model=MatrixResponse,
+    tags=["routing"],
+    dependencies=[KeyRequired],
+)
 async def post_matrix(
     body: MatrixRequest, service: ServiceDep, settings: SettingsDep
 ) -> MatrixResponse:
