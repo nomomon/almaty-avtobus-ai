@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -147,7 +148,8 @@ class DistanceMatrix(BaseModel):
             for j, cell in enumerate(row):
                 if (cell.origin, cell.destination) != (i, j):
                     raise ValueError(
-                        f"cell at [{i}][{j}] is indexed ({cell.origin}, {cell.destination})"
+                        f"cell at [{i}][{j}] is indexed "
+                        f"({cell.origin}, {cell.destination})"
                     )
         return self
 
@@ -205,8 +207,7 @@ class DistanceMatrix(BaseModel):
         grid = grids[value]
         header = "      " + "".join(f"{j:>10}" for j in range(len(self.destinations)))
         rows = [
-            f"{i:>4}  "
-            + "".join(f"{'-' if v is None else v:>10}" for v in grid[i])
+            f"{i:>4}  " + "".join(f"{'-' if v is None else v:>10}" for v in grid[i])
             for i in range(len(self.origins))
         ]
         return "\n".join([f"{value} (origins x destinations)", header, *rows])

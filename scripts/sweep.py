@@ -62,9 +62,7 @@ def sweep_routes(key: str, workers: int) -> int:
     bad = matrix.failures
     print(f"{len(good)} routed, {len(bad)} failed, {elapsed:.1f}s wall clock")
     if good:
-        speeds = sorted(
-            c.distance_m / c.duration_s * 3.6 for c in good if c.duration_s
-        )
+        speeds = sorted(c.distance_m / c.duration_s * 3.6 for c in good if c.duration_s)
         print(
             f"mean speed: min {speeds[0]:.1f} / median "
             f"{speeds[len(speeds) // 2]:.1f} / max {speeds[-1]:.1f} km/h"
@@ -85,7 +83,9 @@ def sweep_routes(key: str, workers: int) -> int:
             and abs(matrix.cell(i, j).duration_s - matrix.cell(j, i).duration_s)
             > 0.5 * matrix.cell(i, j).duration_s
         ]
-        print(f"strongly asymmetric pairs (expected, one-way streets + jams): {len(asym)}")
+        print(
+            f"strongly asymmetric pairs (expected, one-way streets + jams): {len(asym)}"
+        )
 
     for cell in bad:
         print(f"  FAIL {cell.origin}->{cell.destination}: {cell.error}")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import sys
 
 import pytest
@@ -80,6 +81,9 @@ def test_missing_file_is_not_an_error(tmp_path, monkeypatch):
 
 def test_dotenv_is_gitignored():
     """A key in .env must not be committable."""
-    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    ignored = open(os.path.join(repo_root, ".gitignore")).read().split()
-    assert ".env" in ignored
+    here = pathlib.Path(__file__).resolve()
+    gitignore = next(
+        (p / ".gitignore" for p in here.parents if (p / ".gitignore").is_file()), None
+    )
+    assert gitignore is not None, "no .gitignore found above the tests"
+    assert ".env" in gitignore.read_text().split()

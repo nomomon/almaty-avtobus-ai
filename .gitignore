@@ -7,3 +7,4 @@ venv/
 build/
 dist/
 .env
+ctx2_*.json

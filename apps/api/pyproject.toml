@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "routing-api"
+version = "0.1.0"
+description = "FastAPI service for car travel time and distance, with a Redis cache"
+requires-python = ">=3.11"
+dependencies = [
+    "car-routing",
+    "fastapi>=0.115",
+    "pydantic-settings>=2.4",
+    "redis>=5.0",
+    "uvicorn[standard]>=0.30",
+]
+
+[tool.uv.sources]
+car-routing = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/routing_api"]

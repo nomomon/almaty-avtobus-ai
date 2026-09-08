@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -50,7 +50,7 @@ def main() -> int:
             print(message)
 
     load_env(args.env_file)
-    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+    stamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%SZ")
 
     try:
         key = resolve_key(args.key)

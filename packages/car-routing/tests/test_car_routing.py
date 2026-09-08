@@ -23,7 +23,6 @@ from car_routing import (  # noqa: E402
     CarRoutingError,
     DeadKeyError,
     Point,
-    Route,
 )
 
 A = (76.917284, 43.239218)

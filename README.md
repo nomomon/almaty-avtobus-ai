@@ -19,11 +19,11 @@ from car_routing import CarRoutingClient
 with CarRoutingClient() as client:
     route = client.route((76.917284, 43.239218), (76.9575, 43.244608))
 
-    print(route)                 # 15.2 min / 3.57 km
-    print(route.duration_s)      # 913
-    print(route.distance_m)      # 3571
+    print(route)  # 15.2 min / 3.57 km
+    print(route.duration_s)  # 913
+    print(route.distance_m)  # 3571
     print(route.mean_speed_kmh)  # 14.1
-    print(route.traffic_aware)   # True
+    print(route.traffic_aware)  # True
 ```
 
 Coordinates are **`(lon, lat)`**, matching 2GIS's own `x`/`y`. If your data is
@@ -40,13 +40,13 @@ stops = [
 ]
 
 with CarRoutingClient() as client:
-    m = client.matrix(stops)              # all pairs
+    m = client.matrix(stops)  # all pairs
     # m = client.matrix(depots, stops)    # or rectangular
 
-print(m.durations_min)      # [[0.0, 15.2, 21.4], [14.8, 0.0, 26.1], ...]
+print(m.durations_min)  # [[0.0, 15.2, 21.4], [14.8, 0.0, 26.1], ...]
 print(m.distances_km)
 print(m.format_table("duration_min"))
-print(m.to_records())       # flat rows -> pandas.DataFrame(...)
+print(m.to_records())  # flat rows -> pandas.DataFrame(...)
 ```
 
 `cells[i][j]` is `origins[i] -> destinations[j]`. Identical pairs are zeroed
@@ -60,7 +60,7 @@ requests — keep `max_workers` modest and expect to be rate-limited above that.
 ### Alternatives
 
 ```python
-for r in client.alternatives(a, b):   # fastest first
+for r in client.alternatives(a, b):  # fastest first
     print(r.duration_min, r.distance_km)
 ```
 
@@ -119,7 +119,7 @@ your own code:
 ```python
 from car_routing import CarRoutingClient, load_env
 
-load_env()                       # no-op if there is no .env
+load_env()  # no-op if there is no .env
 client = CarRoutingClient()
 ```
 

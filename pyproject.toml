@@ -1,19 +1,37 @@
-[build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "car-routing-2gis"
+name = "almaty-routing"
 version = "0.1.0"
-description = "Travel time and distance by car from 2GIS, including a point-to-point matrix"
-requires-python = ">=3.10"
-dependencies = ["httpx>=0.27", "pydantic>=2.0"]
+description = "uv workspace: 2GIS routing client and the API service in front of it"
+requires-python = ">=3.11"
+dependencies = [
+    "car-routing",
+    "routing-api",
+]
 
-[project.optional-dependencies]
-dev = ["pytest>=8.0"]
+[tool.uv]
+package = false
 
-[tool.setuptools]
-packages = ["car_routing"]
+[tool.uv.workspace]
+members = ["apps/*", "packages/*"]
+
+[tool.uv.sources]
+car-routing = { workspace = true }
+routing-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["packages/car-routing/tests", "apps/api/tests"]
+asyncio_mode = "auto"
+markers = ["backend(cls): cache backend class for the api test fixture"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
