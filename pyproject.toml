@@ -1,0 +1,37 @@
+[project]
+name = "almaty-routing"
+version = "0.1.0"
+description = "uv workspace: 2GIS routing client and the API service in front of it"
+requires-python = ">=3.11"
+dependencies = [
+    "car-routing",
+    "routing-api",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["apps/*", "packages/*"]
+
+[tool.uv.sources]
+car-routing = { workspace = true }
+routing-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["packages/car-routing/tests", "apps/api/tests"]
+asyncio_mode = "auto"
+markers = ["backend(cls): cache backend class for the api test fixture"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

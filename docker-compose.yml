@@ -1,0 +1,34 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CACHE_TTL_S: "600"
+      # Supply the key from your shell or a .env file next to this compose
+      # file; it is deliberately not written into the image.
+      TWOGIS_ROUTING_KEY: ${TWOGIS_ROUTING_KEY:-}
+      TWOGIS_API_KEY: ${TWOGIS_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    # Cache only: bounded memory, evict rather than error, no persistence.
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
