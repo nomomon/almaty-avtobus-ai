@@ -1,17 +1,81 @@
-# car-routing-2gis
+# almaty-routing
 
-Travel **time** and **distance** by car in Almaty (and anywhere else 2GIS
-covers), with live traffic. Point to point, or a full matrix of points.
+Travel **time** and **distance** in Almaty (and anywhere else 2GIS covers),
+with live traffic: by car, on foot, or by public transport. Point to point, or
+a full matrix of points. Served as an HTTP API, or used as a library.
 
 Pydantic v2 models throughout, so bad coordinates fail at the boundary instead
 of turning into a confusing 403 later.
 
-```bash
-pip install httpx "pydantic>=2"
-export TWOGIS_ROUTING_KEY=your-key   # see "Keys" below
+```
+packages/car-routing/   the 2GIS client (car, walking, transit)
+apps/api/               FastAPI service + Dockerfile
+scripts/                live probes and operational checks
 ```
 
-## Use
+```bash
+uv sync
+uv run pytest -q
+```
+
+## Run the API
+
+```bash
+docker compose up --build          # api on :8000, redis alongside
+# or without docker:
+uv run uvicorn routing_api.main:app --reload
+```
+
+```bash
+curl "localhost:8000/v1/route?origin=76.917284,43.239218&destination=76.9575,43.244608"
+
+curl -X POST localhost:8000/v1/matrix -H 'content-type: application/json' \
+  -d '{"origins":[{"lon":76.917284,"lat":43.239218},{"lon":76.9575,"lat":43.244608}]}'
+
+curl localhost:8000/health
+```
+
+Interactive docs at `/docs`.
+
+The Redis cache is keyed per **origin-destination pair**, not per request, so a
+matrix reuses pairs cached by earlier calls and by overlapping matrices.
+Responses report `from_cache` / `fetched` / `trivial`. Default TTL is 600s
+(`CACHE_TTL_S`). If Redis is unreachable every lookup degrades to a miss and
+the API keeps answering -- a cache outage is not an API outage.
+
+Matrix size is capped (`MAX_POINTS_PER_SIDE`, `MAX_MATRIX_PAIRS`) because each
+uncached pair costs one upstream request.
+
+## Deploying
+
+`docker-compose.yml` deliberately **does not publish a host port**. It only
+`expose`s 8000, so a reverse proxy reaches the container over the compose
+network. Publishing a fixed host port is what causes:
+
+```
+Bind for 0.0.0.0:8000 failed: port is already allocated
+```
+
+on a box that already runs something on 8000.
+
+For **local** work, `docker-compose.override.yml` publishes the port and is
+loaded automatically by a bare `docker compose up`. A deploy that names its
+file explicitly (`-f docker-compose.yml`, which is what Dokploy runs) ignores
+the override, so it cannot collide on the server.
+
+On **Dokploy**: point the domain at service `api`, container port **8000**, and
+set `TWOGIS_ROUTING_KEY` in the environment editor. If Traefik still cannot
+reach the container, the app needs to join Dokploy's proxy network -- add it as
+an external network on the `api` service.
+
+Need a published port locally on something other than 8000:
+
+```bash
+API_PORT=8010 docker compose up
+```
+
+## Use as a library
+
 
 ```python
 from car_routing import CarRoutingClient
@@ -63,6 +127,37 @@ requests — keep `max_workers` modest and expect to be rate-limited above that.
 for r in client.alternatives(a, b):  # fastest first
     print(r.duration_min, r.distance_km)
 ```
+
+### Walking and public transport
+
+```python
+from car_routing import TransitClient
+
+with TransitClient(city="almaty") as client:
+    for route in client.transit(a, b):        # buses, trams, metro
+        print(route, route.route_ids)
+    print(client.walk(a, b)[0])               # walking only
+
+    # depart at a specific time (unix seconds)
+    client.transit(a, b, start_time=1788880355)
+```
+
+`AsyncTransitClient` is the same thing awaitable. These wrap
+`POST routing.api.2gis.com/ctx/2.0/{city}`, the endpoint behind the transit and
+pedestrian tabs on 2gis.kz.
+
+**Caveat**: the request shape is verbatim from a captured session, but the
+**response schema is unconfirmed** — the capture had no response bodies. So
+`TransitRoute` is lenient: it lifts fields that look right if they're present
+and always keeps the untouched payload on `.raw`. Nothing is dropped, but don't
+trust a `None`. To fix that:
+
+```bash
+python scripts/dump_transit.py     # saves a real response + prints its structure
+```
+
+Then the models can become strict and the API can grow `/v1/walk` and
+`/v1/transit`. Those endpoints are deliberately absent until then.
 
 ## Keys
 

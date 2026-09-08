@@ -1,0 +1,12 @@
+# Local development only.
+#
+# `docker compose up` loads this automatically on top of docker-compose.yml.
+# A deployment that names its compose file explicitly (`-f docker-compose.yml`,
+# which is what Dokploy runs) does NOT load it, so publishing a host port here
+# cannot cause a port collision on the server.
+#
+# Override the host port if 8000 is taken locally: API_PORT=8010 docker compose up
+services:
+  api:
+    ports:
+      - "${API_PORT:-8000}:8000"

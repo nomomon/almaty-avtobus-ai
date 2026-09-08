@@ -3,8 +3,17 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    ports:
-      - "8000:8000"
+    # No host port binding on purpose. A reverse proxy (Dokploy/Traefik,
+    # Caddy, nginx) reaches this over the compose network by service name, so
+    # publishing a fixed host port only invites "port is already allocated"
+    # collisions with whatever else runs on the box.
+    #
+    # For local development, docker-compose.override.yml publishes 8000 and is
+    # picked up automatically by `docker compose up` -- but NOT by a deploy
+    # that passes `-f docker-compose.yml` explicitly, which is what Dokploy
+    # does. Point your Dokploy domain at service `api`, container port 8000.
+    expose:
+      - "8000"
     environment:
       REDIS_URL: redis://redis:6379/0
       CACHE_TTL_S: "600"
