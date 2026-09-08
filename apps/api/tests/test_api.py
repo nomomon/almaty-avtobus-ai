@@ -357,7 +357,8 @@ def test_missing_key_is_a_503_about_configuration_not_a_502(env):
         assert client.post("/v1/matrix", json={"origins": [A, B]}).status_code == 503
         assert (
             client.get(
-                "/v1/route", params={"origin": "76.9,43.2", "destination": "76.95,43.24"}
+                "/v1/route",
+                params={"origin": "76.9,43.2", "destination": "76.95,43.24"},
             ).status_code
             == 503
         )

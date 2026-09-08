@@ -32,6 +32,7 @@ from ._core import (
     CarRoutingError,
     backoff_seconds,
     check_status,
+    request_params,
     resolve_key,
 )
 from .models import Point
@@ -376,7 +377,7 @@ class TransitClient(_TransitBase):
                 time.sleep(backoff_seconds(attempt))
             try:
                 response = self._client.post(
-                    target, params={"key": self.key}, json=body
+                    target, params=request_params(self.key), json=body
                 )
             except httpx.HTTPError as exc:
                 last_error = CarRoutingError(f"request failed: {exc}")
@@ -464,7 +465,7 @@ class AsyncTransitClient(_TransitBase):
                 await asyncio.sleep(backoff_seconds(attempt))
             try:
                 response = await self._client.post(
-                    target, params={"key": self.key}, json=body
+                    target, params=request_params(self.key), json=body
                 )
             except httpx.HTTPError as exc:
                 last_error = CarRoutingError(f"request failed: {exc}")

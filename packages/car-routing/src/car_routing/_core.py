@@ -109,16 +109,18 @@ def build_body(
 ) -> dict[str, Any]:
     """The request body, shaped like the one 2gis.kz sends.
 
-    A trimmed body (no ``viewport``, no ``need_immersion``, no point names)
-    comes back as ``{"type": "forbidden", "message": "invalid_request"}``; which
-    of them is the mandatory one was never isolated, so send the lot even
-    though only the totals are read back.
+    Sends the full field set the web app sends (``viewport``,
+    ``need_immersion``, point names) even though only the totals are read
+    back, because there is no evidence about which fields are optional.
+
+    A trimmed body was once blamed for an ``invalid_request`` rejection. That
+    was wrong: the failing request was also missing the ``r`` query parameter,
+    which is the actual requirement -- see :func:`request_params`. Which of
+    these body fields is genuinely mandatory remains untested.
 
     One deviation from the captured request: the app also sends an
-    ``object_id`` per point (a catalog POI id it has because the user clicked a
-    POI). Arbitrary coordinates have no such id, so it is omitted -- the only
-    part of this body not confirmed against a live 200. If calls start failing
-    with ``invalid_request``, suspect this first.
+    ``object_id`` per point (a catalog POI id it has because the user clicked
+    a POI). Arbitrary coordinates have no such id, so it is omitted.
     """
     return {
         "locale": locale,
@@ -168,6 +170,18 @@ def check_status(status: int, text: str) -> CarRoutingError | None:
             f"HTTP {status} from 2GIS: {text[:200]}", status=status, body=text[:300]
         )
     return None
+
+
+def request_params(key: str) -> dict[str, str]:
+    """Query parameters for a call: the key, plus ``r``.
+
+    ``r`` is a random number the 2gis.kz front end appends to every routing
+    call, so we send one too. It is NOT known to be required: a request
+    carrying ``r`` was still rejected with 403 ``invalid_request``, which
+    disproved that theory. Included only because matching the real client
+    costs nothing.
+    """
+    return {"key": key, "r": str(random.randrange(1, 2**32))}
 
 
 def backoff_seconds(attempt: int) -> float:

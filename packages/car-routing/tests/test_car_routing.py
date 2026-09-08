@@ -298,3 +298,16 @@ def test_live_route_is_plausible():
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+def test_sync_client_also_sends_r():
+    seen = []
+
+    def capture(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url)
+        return httpx.Response(200, json=LIVE_SAMPLE)
+
+    with make_client(capture) as client:
+        client.route(A, B)
+
+    assert seen[0].params.get("r", "").isdigit(), f"no r param in {seen[0]}"
