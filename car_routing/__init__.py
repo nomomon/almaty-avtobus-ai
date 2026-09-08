@@ -24,6 +24,7 @@ Quick start::
 Requires ``httpx`` and ``pydantic>=2``.
 """
 
+from .env import load_env, parse_env
 from .client import (
     DEFAULT_BASE_URL,
     KEY_ENV_VARS,
@@ -44,6 +45,8 @@ __all__ = [
     "Point",
     "Route",
     "resolve_key",
+    "load_env",
+    "parse_env",
     "DEFAULT_BASE_URL",
     "KEY_ENV_VARS",
     "TRAFFIC_ROUTE_TYPE",

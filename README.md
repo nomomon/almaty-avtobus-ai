@@ -106,6 +106,46 @@ Endpoint: `POST https://routing.api.2gis.com/carrouting/6.0.0/global`, with
 app uses; the documented equivalent is `routing/7.0.0/global` with
 `traffic_mode: "jam"`. Field names differ, the numbers don't.
 
+### Keeping a key in .env
+
+```bash
+cp .env.example .env      # .env is gitignored
+$EDITOR .env
+```
+
+Anything in `.env` is picked up automatically by the scripts, or explicitly in
+your own code:
+
+```python
+from car_routing import CarRoutingClient, load_env
+
+load_env()                       # no-op if there is no .env
+client = CarRoutingClient()
+```
+
+A real shell export beats the file, so `TWOGIS_ROUTING_KEY=... python foo.py`
+still wins; pass `override=True` if you want the file to take precedence.
+
+### Detecting rotation
+
+Running on a key you don't own works and is slow to break — 2gis.kz's key has
+been observed alive across at least three months — but when it does break you
+get no notice, and the failure looks like a generic 403. Make it loud:
+
+```bash
+python scripts/check_key.py          # 0 working, 3 key dead, 4 other, 5 unset
+python scripts/check_key.py --quiet  # for cron
+```
+
+One cheap route, one exit code. Wire it into cron or CI daily and a rotated key
+shows up as an alert you can act on, rather than as users reporting that
+routing quietly stopped working. Exit 3 is the "go paste a fresh value into
+`.env`" signal.
+
+For anything user-facing, that chore is the argument for your own key: the
+shared quota also means you can be throttled by 2gis.kz's traffic rather than
+your own, with no way to tell the two apart from the outside.
+
 ## The official Distance Matrix API
 
 2GIS does sell a real matrix product — **Distance Matrix API**, at
