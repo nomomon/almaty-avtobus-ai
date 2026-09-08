@@ -141,3 +141,29 @@ async def test_empty_result_is_an_error():
     async with make_client(empty) as client:
         with pytest.raises(CarRoutingError, match="No route"):
             await client.route(A, B)
+
+
+async def test_every_request_carries_the_r_param():
+    """We send the `r` cache-buster the web app sends.
+
+    Not known to be required -- a request with it was still rejected -- but
+    matching the real client is free.
+    """
+    seen: list[httpx.URL] = []
+
+    async def capture(request: httpx.Request) -> httpx.Response:
+        seen.append(request.url)
+        return httpx.Response(200, json=SAMPLE)
+
+    async with make_client(capture) as client:
+        await client.route(A, B)
+        await client.route(B, C)
+
+    assert len(seen) == 2
+    for url in seen:
+        assert url.params.get("key") == "test-key"
+        r = url.params.get("r")
+        assert r and r.isdigit() and int(r) > 0, f"missing or bad r in {url}"
+
+    # Fresh value per request, like the web app's cache-buster.
+    assert seen[0].params["r"] != seen[1].params["r"]

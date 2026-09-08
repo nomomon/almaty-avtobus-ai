@@ -134,9 +134,9 @@ for r in client.alternatives(a, b):  # fastest first
 from car_routing import TransitClient
 
 with TransitClient(city="almaty") as client:
-    for route in client.transit(a, b):        # buses, trams, metro
+    for route in client.transit(a, b):  # buses, trams, metro
         print(route, route.route_ids)
-    print(client.walk(a, b)[0])               # walking only
+    print(client.walk(a, b)[0])  # walking only
 
     # depart at a specific time (unix seconds)
     client.transit(a, b, start_time=1788880355)

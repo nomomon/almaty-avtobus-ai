@@ -22,6 +22,7 @@ from ._core import (
     build_body,
     check_status,
     parse_routes,
+    request_params,
     resolve_key,
     same_place,
 )
@@ -187,7 +188,7 @@ class AsyncCarRoutingClient:
                     await asyncio.sleep(backoff_seconds(attempt))
                 try:
                     response = await self._client.post(
-                        self.base_url, params={"key": self.key}, json=body
+                        self.base_url, params=request_params(self.key), json=body
                     )
                 except httpx.HTTPError as exc:
                     last_error = CarRoutingError(f"request failed: {exc}")
