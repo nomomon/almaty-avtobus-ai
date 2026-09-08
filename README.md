@@ -1,42 +1,117 @@
-# Almaty Avtobus AI
+# car-routing-2gis
 
-![Almaty Avtobus AI](assets/icon.svg)
+Travel **time** and **distance** by car in Almaty (and anywhere else 2GIS
+covers), with live traffic. Point to point, or a full matrix of points.
 
-**Chat with an AI that knows Almaty’s buses.** Ask for nearby stops, when the next bus is coming, or how to get from A to B. It uses the city transport API and talks back in Russian, English, or Kazakh.
-
-## What it does
-
-- **Nearby stops** — Finds bus stops near you and walking times.
-- **Live departures** — Shows which buses are coming and when.
-- **Route planning** — Suggests how to get between two points by bus.
-- **Places** — Describes points of interest and locations in Almaty.
-
-All of this is driven by a chat interface: you ask in natural language, the assistant calls tools (location, transit API, routes) and answers. Installable as a PWA.
-
-## Tech
-
-- **Next.js 15** (App Router) + **React 19**
-- **Vercel AI SDK** with **Google Gemini 2.5 Flash**
-- **Almaty transport API** for stops, routes, and arrivals
-- **Tailwind CSS**, **Framer Motion**, **Radix** for UI
-- **PWA** (manifest, install prompt, service worker)
-
-## How to run
+Pydantic v2 models throughout, so bad coordinates fail at the boundary instead
+of turning into a confusing 403 later.
 
 ```bash
-pnpm install
-pnpm dev
+pip install httpx "pydantic>=2"
+export TWOGIS_ROUTING_KEY=your-key   # see "Keys" below
 ```
 
-Open [http://localhost:3000](http://localhost:3000). You’ll need a `GOOGLE_GENERATIVE_AI_API_KEY` (or equivalent) for the AI SDK; the transport API is wired with its own auth in the repo.
+## Use
 
-## Build
+```python
+from car_routing import CarRoutingClient
+
+with CarRoutingClient() as client:
+    route = client.route((76.917284, 43.239218), (76.9575, 43.244608))
+
+    print(route)                 # 15.2 min / 3.57 km
+    print(route.duration_s)      # 913
+    print(route.distance_m)      # 3571
+    print(route.mean_speed_kmh)  # 14.1
+    print(route.traffic_aware)   # True
+```
+
+Coordinates are **`(lon, lat)`**, matching 2GIS's own `x`/`y`. If your data is
+the other way round, use `Point.from_latlon(lat, lon)` — and note the models
+will usually catch a silent swap, since a latitude above 90 is rejected.
+
+### Matrix
+
+```python
+stops = [
+    (76.917284, 43.239218),
+    (76.9575, 43.244608),
+    (76.8895, 43.2385),
+]
+
+with CarRoutingClient() as client:
+    m = client.matrix(stops)              # all pairs
+    # m = client.matrix(depots, stops)    # or rectangular
+
+print(m.durations_min)      # [[0.0, 15.2, 21.4], [14.8, 0.0, 26.1], ...]
+print(m.distances_km)
+print(m.format_table("duration_min"))
+print(m.to_records())       # flat rows -> pandas.DataFrame(...)
+```
+
+`cells[i][j]` is `origins[i] -> destinations[j]`. Identical pairs are zeroed
+without a request. A pair whose own request fails gets `error` set on its cell
+and shows up in `m.failures`, so one bad pair doesn't lose the other 99.
+
+**Cost**: the endpoint has no batch mode, so an n×m matrix is n×m HTTP
+requests, run `max_workers` at a time (default 8). A 20×20 matrix is 380
+requests — keep `max_workers` modest and expect to be rate-limited above that.
+
+### Alternatives
+
+```python
+for r in client.alternatives(a, b):   # fastest first
+    print(r.duration_min, r.distance_km)
+```
+
+## Keys
+
+`CarRoutingClient()` takes `key=...`, otherwise it reads the first of
+`TWOGIS_ROUTING_KEY`, `TWOGIS_API_KEY`, `2GIS_API_KEY`. No key is bundled.
+
+Get one at [dev.2gis.com](https://dev.2gis.com): register, create a project,
+request a key for the **Directions API** (the productized name for the
+`carrouting` endpoint this wraps). They issue a demo key first and then move
+you to commercial terms; check the current trial length and pricing there. The
+same key also covers the Public Transport API.
+
+A key rejected by 2GIS raises `DeadKeyError`. Worth knowing: 2GIS answers HTTP
+403 `{"type": "forbidden", "message": "invalid_request"}` for both a dead key
+*and* a malformed body, so `DeadKeyError` covers both cases and says so. If
+calls worked yesterday and 403 today with nothing changed on your side, the key
+is gone — issue a new one.
+
+Don't run this on the public key embedded in 2gis.kz's own JS bundle. It works,
+but it can be rotated without notice, its quota is shared with all of 2gis.kz's
+traffic, and using it from your own product is outside 2GIS's terms.
+
+## What it reads
+
+The response is large (~28 KB per route: geometry, manoeuvres, per-segment
+congestion colours, 3D extrusion lines). This client keeps only
+`total_distance` and `total_duration`, plus the server's `algorithm` label so
+you can confirm traffic was applied — `с учётом пробок` means it was.
+
+Endpoint: `POST https://routing.api.2gis.com/carrouting/6.0.0/global`, with
+`type: "online5"` for live traffic. This is the undocumented version the web
+app uses; the documented equivalent is `routing/7.0.0/global` with
+`traffic_mode: "jam"`. Field names differ, the numbers don't.
+
+## Tests
 
 ```bash
-pnpm build
-pnpm start
+pip install pytest
+python -m pytest tests -q
 ```
 
----
+18 offline tests (network stubbed via `httpx.MockTransport`) covering
+validation, matrix assembly, partial failure, retries and key resolution. One
+live smoke test runs only when a key is in the environment.
 
-*Side project: an AI assistant for Almaty’s bus network, with real-time data and a simple chat UI.*
+Verified against a real response on 2026-09-08: Kazakhstan Hotel → Almaty
+point, 3571 m / 913 s, matching the `"15 мин"` the API returns for its own UI.
+
+One caveat on the request body: the web app sends an `object_id` per point (a
+catalog POI id it has because the user clicked a POI). Arbitrary coordinates
+have none, so it's omitted — the only part of the request not confirmed against
+a live 200. If you see `invalid_request`, suspect that first.
